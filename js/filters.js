@@ -41,10 +41,11 @@ function applyFilters() {
 
     // 統計を再計算
     const stats = calculateStatistics(filtered);
+    const dailyTrend = getDailyTrend(filtered);
 
     // UIを更新
     updateSummaryCards(stats);
-    updateAllCharts(stats);
+    updateAllCharts(stats, dailyTrend);
 
     console.log('フィルター適用:', filters, '結果:', filtered.length, '件');
 }

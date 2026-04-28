@@ -378,14 +378,150 @@ function createClubChart(stats) {
 }
 
 /**
+ * 日毎の申込推移グラフを作成（棒グラフ+折れ線グラフの混合）
+ */
+function createDailyTrendChart(dailyData) {
+    const ctx = document.getElementById('dailyTrendChart');
+    
+    if (charts.dailyTrend) {
+        charts.dailyTrend.destroy();
+    }
+
+    if (!dailyData || dailyData.length === 0) {
+        return;
+    }
+
+    const labels = dailyData.map(d => d.dateLabel);
+    const dailyCounts = dailyData.map(d => d.count);
+    const cumulativeCounts = dailyData.map(d => d.cumulative);
+
+    const data = {
+        labels: labels,
+        datasets: [
+            {
+                type: 'bar',
+                label: '日毎の申込数',
+                data: dailyCounts,
+                backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                borderColor: 'rgba(102, 126, 234, 1)',
+                borderWidth: 2,
+                borderRadius: 4,
+                yAxisID: 'y'
+            },
+            {
+                type: 'line',
+                label: '累積申込数',
+                data: cumulativeCounts,
+                borderColor: 'rgba(250, 112, 154, 1)',
+                backgroundColor: 'rgba(250, 112, 154, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: 'rgba(250, 112, 154, 1)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                yAxisID: 'y1'
+            }
+        ]
+    };
+
+    charts.dailyTrend = new Chart(ctx, {
+        type: 'bar',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45,
+                        font: {
+                            size: 10
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    },
+                    title: {
+                        display: true,
+                        text: '日毎の申込数',
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 10
+                    },
+                    title: {
+                        display: true,
+                        text: '累積申込数',
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12
+                        },
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.dataset.label || '';
+                            const value = context.parsed.y;
+                            return `${label}: ${value}人`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
  * すべてのグラフを更新
  */
-function updateAllCharts(stats) {
+function updateAllCharts(stats, dailyData) {
     const hideZero = document.getElementById('hideZeroRounds')?.checked ?? true;
     
     createPaymentChart(stats);
     createTourChart(stats);
     createBusChart(stats);
+    createDailyTrendChart(dailyData);
     createGraduationChart(stats, hideZero);
     createAgeGroupChart(stats);
     createClubChart(stats);
