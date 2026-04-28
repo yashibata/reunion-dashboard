@@ -186,6 +186,143 @@ function sortAgeGroups(data) {
 function calculatePercentage(value, total) {
     return total > 0 ? ((value / total) * 100).toFixed(1) : 0;
 }
+/**
+ * 登録日時を解析
+ */
+function parseRegistrationDate(dateStr) {
+    if (!dateStr) return null;
+    
+    // ハガキデータの場合はnullを返す
+    if (dateStr.includes('ハガキ')) {
+        return null;
+    }
+    
+    // 日付形式のデータを解析
+    try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+            return null;
+        }
+        return date;
+    } catch (e) {
+        return null;
+    }
+}
+
+/**
+ * 日付を YYYY-MM-DD 形式の文字列に変換
+ */
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+/**
+ * 日付を MM/DD 形式の文字列に変換
+ */
+function formatDateShort(dateStr) {
+    const date = new Date(dateStr);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${month}/${day}`;
+}
+
+/**
+ * 重み付けランダム選択
+ */
+function weightedRandomSelect(weights) {
+    const totalWeight = weights.reduce((sum, w) => sum + w.weight, 0);
+    let random = Math.random() * totalWeight;
+    
+    for (const item of weights) {
+        random -= item.weight;
+        if (random <= 0) {
+            return item.date;
+        }
+    }
+    
+    return weights[weights.length - 1].date;
+}
+
+/**
+ * ハガキデータの日付をランダムに分散
+ */
+function distributePostcardDates(postcardCount, validDates) {
+    if (validDates.length === 0 || postcardCount === 0) {
+        return [];
+    }
+    
+    // 日付ごとの件数をカウント
+    const dateCounts = {};
+    validDates.forEach(date => {
+        dateCounts[date] = (dateCounts[date] || 0) + 1;
+    });
+    
+    // 重みを計算（件数が多い日付ほど高い重み）
+    const weights = Object.entries(dateCounts).map(([date, count]) => ({
+        date: date,
+        weight: count
+    }));
+    
+    // ランダムに分散
+    const distributedDates = [];
+    for (let i = 0; i < postcardCount; i++) {
+        const randomDate = weightedRandomSelect(weights);
+        distributedDates.push(randomDate);
+    }
+    
+    return distributedDates;
+}
+
+/**
+ * 日毎の登録推移データを計算
+ */
+function getDailyTrend(data) {
+    const dailyCounts = {};
+    const validDates = [];
+    let postcardCount = 0;
+    
+    // データを解析
+    data.forEach(row => {
+        const dateStr = row['登録日時']?.trim();
+        const date = parseRegistrationDate(dateStr);
+        
+        if (date) {
+            const dateKey = formatDate(date);
+            dailyCounts[dateKey] = (dailyCounts[dateKey] || 0) + 1;
+            validDates.push(dateKey);
+        } else if (dateStr && dateStr.includes('ハガキ')) {
+            postcardCount++;
+        }
+    });
+    
+    // ハガキデータを分散
+    const distributedPostcardDates = distributePostcardDates(postcardCount, validDates);
+    distributedPostcardDates.forEach(date => {
+        dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+    });
+    
+    // 日付順にソート
+    const sortedDates = Object.keys(dailyCounts).sort();
+    
+    // 累積数を計算
+    let cumulative = 0;
+    const result = sortedDates.map(date => {
+        const count = dailyCounts[date];
+        cumulative += count;
+        return {
+            date: date,
+            dateLabel: formatDateShort(date),
+            count: count,
+            cumulative: cumulative
+        };
+    });
+    
+    return result;
+}
+
 
 
 // Made with Bob

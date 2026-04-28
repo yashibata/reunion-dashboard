@@ -21,11 +21,12 @@ async function initializeApp() {
         // 初期データで統計を計算
         const data = getFilteredData();
         const stats = calculateStatistics(data);
+        const dailyTrend = getDailyTrend(data);
         console.log('統計計算完了:', stats);
 
         // UIを更新
         updateSummaryCards(stats);
-        updateAllCharts(stats);
+        updateAllCharts(stats, dailyTrend);
 
         // ローディングを非表示
         hideLoading();
@@ -175,7 +176,8 @@ document.addEventListener('DOMContentLoaded', function() {
         hideZeroCheckbox.addEventListener('change', function() {
             const data = getFilteredData();
             const stats = calculateStatistics(data);
-            updateAllCharts(stats);
+            const dailyTrend = getDailyTrend(data);
+            updateAllCharts(stats, dailyTrend);
             console.log('0人の回の表示を切り替えました:', this.checked ? '非表示' : '表示');
         });
     }
