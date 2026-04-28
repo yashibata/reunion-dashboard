@@ -280,49 +280,53 @@ function distributePostcardDates(postcardCount, validDates) {
  * 日毎の登録推移データを計算
  */
 function getDailyTrend(data) {
-    const dailyCounts = {};
-    const validDates = [];
-    let postcardCount = 0;
-    
-    // データを解析
-    data.forEach(row => {
-        const dateStr = row['登録日時']?.trim();
-        const date = parseRegistrationDate(dateStr);
+    try {
+        const dailyCounts = {};
+        const validDates = [];
+        let postcardCount = 0;
         
-        if (date) {
-            const dateKey = formatDate(date);
-            dailyCounts[dateKey] = (dailyCounts[dateKey] || 0) + 1;
-            validDates.push(dateKey);
-        } else if (dateStr && dateStr.includes('ハガキ')) {
-            postcardCount++;
-        }
-    });
-    
-    // ハガキデータを分散
-    const distributedPostcardDates = distributePostcardDates(postcardCount, validDates);
-    distributedPostcardDates.forEach(date => {
-        dailyCounts[date] = (dailyCounts[date] || 0) + 1;
-    });
-    
-    // 日付順にソート
-    const sortedDates = Object.keys(dailyCounts).sort();
-    
-    // 累積数を計算
-    let cumulative = 0;
-    const result = sortedDates.map(date => {
-        const count = dailyCounts[date];
-        cumulative += count;
-        return {
-            date: date,
-            dateLabel: formatDateShort(date),
-            count: count,
-            cumulative: cumulative
-        };
-    });
-    
-    return result;
+        // データを解析
+        data.forEach(row => {
+            const dateStr = row['登録日時']?.trim();
+            const date = parseRegistrationDate(dateStr);
+            
+            if (date) {
+                const dateKey = formatDate(date);
+                dailyCounts[dateKey] = (dailyCounts[dateKey] || 0) + 1;
+                validDates.push(dateKey);
+            } else if (dateStr && dateStr.includes('ハガキ')) {
+                postcardCount++;
+            }
+        });
+        
+        // ハガキデータを分散
+        const distributedPostcardDates = distributePostcardDates(postcardCount, validDates);
+        distributedPostcardDates.forEach(date => {
+            dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+        });
+        
+        // 日付順にソート
+        const sortedDates = Object.keys(dailyCounts).sort();
+        
+        // 累積数を計算
+        let cumulative = 0;
+        const result = sortedDates.map(date => {
+            const count = dailyCounts[date];
+            cumulative += count;
+            return {
+                date: date,
+                dateLabel: formatDateShort(date),
+                count: count,
+                cumulative: cumulative
+            };
+        });
+        
+        return result;
+    } catch (error) {
+        console.error('getDailyTrend エラー:', error);
+        return [];
+    }
 }
-
 
 
 // Made with Bob
