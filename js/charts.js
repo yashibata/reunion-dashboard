@@ -14,7 +14,7 @@ function initializeCharts() {
 }
 
 /**
- * 支払方法の円グラフを作成
+ * 年代別の円グラフを作成
  */
 function createPaymentChart(stats) {
     const ctx = document.getElementById('paymentChart');
@@ -23,16 +23,24 @@ function createPaymentChart(stats) {
         charts.payment.destroy();
     }
 
+    const sortedData = sortAgeGroups(stats.ageGroups);
+    const labels = sortedData.map(d => d[0]);
+    const values = sortedData.map(d => d[1]);
+
     const data = {
-        labels: Object.keys(stats.paymentMethods),
+        labels: labels,
         datasets: [{
-            data: Object.values(stats.paymentMethods),
+            data: values,
             backgroundColor: [
                 '#667eea',
                 '#764ba2',
                 '#f093fb',
                 '#4facfe',
-                '#43e97b'
+                '#43e97b',
+                '#fa709a',
+                '#fee140',
+                '#30cfd0',
+                '#a8edea'
             ],
             borderWidth: 2,
             borderColor: '#fff'
