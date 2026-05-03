@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デバッグテスト</title>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+    <h1>データ読み込みテスト</h1>
+    <div id="result"></div>
+    
+    <script>
+        console.log('テスト開始');
+        
+        Papa.parse('data/participants.csv', {
+            download: true,
+            header: true,
+            encoding: 'UTF-8',
+            skipEmptyLines: true,
+            complete: function(results) {
+                console.log('CSV読み込み成功:', results.data.length, '件');
+                console.log('最初の3件:', results.data.slice(0, 3));
+                
+                document.getElementById('result').innerHTML = `
+                    <h2>✅ CSV読み込み成功</h2>
+                    <p>総件数: ${results.data.length}件</p>
+                    <h3>最初の3件:</h3>
+                    <pre>${JSON.stringify(results.data.slice(0, 3), null, 2)}</pre>
+                `;
+            },
+            error: function(error) {
+                console.error('CSV読み込みエラー:', error);
+                document.getElementById('result').innerHTML = `
+                    <h2>❌ エラー</h2>
+                    <p>${error.message}</p>
+                    <p>ファイルパス: data/participants.csv</p>
+                    <p>ヒント: ローカルサーバーを使用してください（例: python -m http.server 8000）</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>同窓会参加者分析ダッシュボード</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 同窓会参加者分析ダッシュボード</h1>
+        </header>
+
+        <!-- フィルターパネル -->
+        <section class="filter-panel">
+            <h2>📊 フィルター</h2>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="graduationFilter">卒業年代:</label>
+                    <select id="graduationFilter" class="filter-select">
+                        <option value="all">すべて</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="paymentFilter">支払方法:</label>
+                    <select id="paymentFilter" class="filter-select">
+                        <option value="all">すべて</option>
+                        <option value="オンライン決済">オンライン決済</option>
+                        <option value="銀行振込等">銀行振込等</option>
+                        <option value="">未選択</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="tourFilter">キャンパスツアー:</label>
+                    <select id="tourFilter" class="filter-select">
+                        <option value="all">すべて</option>
+                        <option value="参加する">参加する</option>
+                        <option value="参加しない">参加しない</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="busFilter">送迎バス:</label>
+                    <select id="busFilter" class="filter-select">
+                        <option value="all">すべて</option>
+                        <option value="利用する">利用する</option>
+                        <option value="利用しない">利用しない</option>
+                    </select>
+                </div>
+                <button id="resetFilters" class="btn-reset">フィルターをリセット</button>
+            </div>
+        </section>
+
+        <!-- 統計サマリーカード -->
+        <section class="summary-cards">
+            <div class="card">
+                <div class="card-icon">👥</div>
+                <div class="card-content">
+                    <h3>総参加者数</h3>
+                    <p class="card-value" id="totalParticipants">0</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon">🎫</div>
+                <div class="card-content">
+                    <h3>オンライン決済</h3>
+                    <p class="card-value" id="onlinePayment">0</p>
+                    <p class="card-percentage" id="onlinePaymentPercent">0%</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon">🏫</div>
+                <div class="card-content">
+                    <h3>ツアー参加</h3>
+                    <p class="card-value" id="tourParticipants">0</p>
+                    <p class="card-percentage" id="tourPercent">0%</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon">🚌</div>
+                <div class="card-content">
+                    <h3>バス利用</h3>
+                    <p class="card-value" id="busUsers">0</p>
+                    <p class="card-percentage" id="busPercent">0%</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- グラフエリア -->
+        <section class="charts-section">
+            <div class="chart-container">
+                <h3>年代別の分布</h3>
+                <canvas id="paymentChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>キャンパスツアー参加状況</h3>
+                <canvas id="tourChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>送迎バス利用状況</h3>
+                <canvas id="busChart"></canvas>
+            </div>
+            <div class="chart-container full-width">
+                <h3>📅 日毎の申込推移</h3>
+                <canvas id="dailyTrendChart"></canvas>
+            </div>
+            <div class="chart-container full-width">
+                <div class="chart-header">
+                    <h3>卒業回別参加者数（年齢）</h3>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="hideZeroRounds" checked>
+                        0人の回を非表示
+                    </label>
+                </div>
+                <canvas id="graduationChart"></canvas>
+            </div>
+            <div class="chart-container full-width">
+                <h3>年代別参加者数</h3>
+                <canvas id="ageGroupChart"></canvas>
+            </div>
+            <div class="chart-container full-width">
+                <h3>クラブ別参加 TOP 10</h3>
+                <canvas id="clubChart"></canvas>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2026 同窓会参加者分析ダッシュボード</p>
+        </footer>
+    </div>
+
+    <script src="js/dataLoader.js"></script>
+    <script src="js/statistics.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/filters.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
