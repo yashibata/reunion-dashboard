@@ -63,7 +63,8 @@ function calculateStatistics(data) {
         busUsage: {},
         graduationRoundsWithAge: {},
         ageGroups: {},
-        clubs: {}
+        clubs: {},
+        clubVotes: {}
     };
 
     // 全ての回を初期化（1回から76回まで）
@@ -72,6 +73,16 @@ function calculateStatistics(data) {
         const label = `${i}回(${age}歳)`;
         stats.graduationRoundsWithAge[label] = 0;
     }
+
+    // クラブ投票列のリスト
+    const clubVoteColumns = [
+        '野球', '卓球', '陸上', 'ラグビー', 'テニス', '柔道', 'バスケットボール',
+        '剣道', '弓道', 'ホッケー', '馬術', 'サッカー', '水泳', 'バドミントン',
+        'アーチェリー', 'ゴルフ', 'バレー', 'ワンダーフォーゲル', '生物研究',
+        '物理研究', '化学研究', '数学研究', 'ブラスアンサンブル', '美術',
+        '鉄道研究', '器楽', '囲碁将棋', '書道', '放送', 'ESS', 'クラシック同好',
+        '応援団', 'なし'
+    ];
 
     data.forEach(row => {
         // 支払方法の集計
@@ -98,7 +109,7 @@ function calculateStatistics(data) {
         const ageGroup = getAgeGroup(age);
         stats.ageGroups[ageGroup] = (stats.ageGroups[ageGroup] || 0) + 1;
 
-        // クラブの集計
+        // クラブの集計（所属クラブ名から）
         const club = row['所属クラブ名']?.trim();
         if (club) {
             // 複数のクラブが記載されている場合は分割
@@ -107,6 +118,14 @@ function calculateStatistics(data) {
                 stats.clubs[c] = (stats.clubs[c] || 0) + 1;
             });
         }
+
+        // クラブ投票の集計（●マークから）
+        clubVoteColumns.forEach(clubName => {
+            const vote = row[clubName]?.trim();
+            if (vote === '●') {
+                stats.clubVotes[clubName] = (stats.clubVotes[clubName] || 0) + 1;
+            }
+        });
     });
 
     return stats;
@@ -144,6 +163,16 @@ function updateSummaryCards(stats) {
  */
 function getTopClubs(clubStats, n = 10) {
     return Object.entries(clubStats)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, n);
+}
+
+/**
+ * トップNのクラブ投票を取得
+ */
+function getTopClubVotes(clubVoteStats, n = 10) {
+    return Object.entries(clubVoteStats)
+        .filter(([club, count]) => count > 0)
         .sort((a, b) => b[1] - a[1])
         .slice(0, n);
 }

@@ -3,6 +3,16 @@
 let rawData = [];
 let filteredData = [];
 
+// クラブ投票の列名リスト
+const CLUB_VOTE_COLUMNS = [
+    '野球', '卓球', '陸上', 'ラグビー', 'テニス', '柔道', 'バスケットボール',
+    '剣道', '弓道', 'ホッケー', '馬術', 'サッカー', '水泳', 'バドミントン',
+    'アーチェリー', 'ゴルフ', 'バレー', 'ワンダーフォーゲル', '生物研究',
+    '物理研究', '化学研究', '数学研究', 'ブラスアンサンブル', '美術',
+    '鉄道研究', '器楽', '囲碁将棋', '書道', '放送', 'ESS', 'クラシック同好',
+    '応援団', 'なし'
+];
+
 /**
  * CSVファイルを読み込む
  */
@@ -58,6 +68,30 @@ function extractDecade(graduationStr) {
 }
 
 /**
+ * クラブ投票のリストを取得（投票があったクラブのみ）
+ */
+function getClubVotesList() {
+    const clubs = new Set();
+    rawData.forEach(row => {
+        CLUB_VOTE_COLUMNS.forEach(club => {
+            const vote = row[club]?.trim();
+            if (vote === '●') {
+                clubs.add(club);
+            }
+        });
+    });
+    return Array.from(clubs).sort();
+}
+
+/**
+ * 指定した行が特定のクラブに投票しているかチェック
+ */
+function hasVotedForClub(row, clubName) {
+    const vote = row[clubName]?.trim();
+    return vote === '●';
+}
+
+/**
  * データをフィルタリング
  */
 function filterData(filters) {
@@ -89,6 +123,13 @@ function filterData(filters) {
         if (filters.bus !== 'all') {
             const bus = row['送迎バス']?.trim() || '';
             if (bus !== filters.bus) {
+                return false;
+            }
+        }
+
+        // クラブ投票フィルター
+        if (filters.clubVote && filters.clubVote !== 'all') {
+            if (!hasVotedForClub(row, filters.clubVote)) {
                 return false;
             }
         }

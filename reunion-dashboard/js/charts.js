@@ -378,6 +378,89 @@ function createClubChart(stats) {
 }
 
 /**
+ * クラブ投票ランキングTOP10の横棒グラフを作成
+ */
+function createClubVotesChart(stats) {
+    const ctx = document.getElementById('clubVotesChart');
+    
+    if (charts.clubVotes) {
+        charts.clubVotes.destroy();
+    }
+
+    const topClubVotes = getTopClubVotes(stats.clubVotes, 10);
+    
+    if (topClubVotes.length === 0) {
+        return;
+    }
+    
+    const labels = topClubVotes.map(c => c[0]);
+    const values = topClubVotes.map(c => c[1]);
+
+    // カラフルなグラデーション配色
+    const colors = [
+        'rgba(102, 126, 234, 0.8)',  // 紫
+        'rgba(250, 112, 154, 0.8)',  // ピンク
+        'rgba(67, 233, 123, 0.8)',   // 緑
+        'rgba(79, 172, 254, 0.8)',   // 青
+        'rgba(254, 225, 64, 0.8)',   // 黄
+        'rgba(240, 147, 251, 0.8)',  // 薄紫
+        'rgba(48, 207, 208, 0.8)',   // シアン
+        'rgba(168, 237, 234, 0.8)',  // 薄青
+        'rgba(255, 159, 64, 0.8)',   // オレンジ
+        'rgba(153, 102, 255, 0.8)'   // 濃紫
+    ];
+
+    const data = {
+        labels: labels,
+        datasets: [{
+            label: '投票数',
+            data: values,
+            backgroundColor: colors.slice(0, values.length),
+            borderColor: colors.slice(0, values.length).map(c => c.replace('0.8', '1')),
+            borderWidth: 2,
+            borderRadius: 5
+        }]
+    };
+
+    charts.clubVotes = new Chart(ctx, {
+        type: 'bar',
+        data: data,
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    },
+                    title: {
+                        display: true,
+                        text: '投票数',
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `投票数: ${context.parsed.x}票`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
  * 日毎の申込推移グラフを作成（棒グラフ+折れ線グラフの混合）
  */
 function createDailyTrendChart(dailyData) {
@@ -525,6 +608,7 @@ function updateAllCharts(stats, dailyData) {
     createGraduationChart(stats, hideZero);
     createAgeGroupChart(stats);
     createClubChart(stats);
+    createClubVotesChart(stats);
 }
 
 // Made with Bob
