@@ -15,11 +15,27 @@ function initializeFilters() {
         graduationFilter.appendChild(option);
     });
 
+    // クラブ投票フィルターの選択肢を設定
+    const clubVoteFilter = document.getElementById('clubVoteFilter');
+    if (clubVoteFilter) {
+        const clubVotes = getClubVotesList();
+        clubVotes.forEach(club => {
+            const option = document.createElement('option');
+            option.value = club;
+            option.textContent = club;
+            clubVoteFilter.appendChild(option);
+        });
+    }
+
     // フィルター変更イベントリスナーを設定
     document.getElementById('graduationFilter').addEventListener('change', applyFilters);
     document.getElementById('paymentFilter').addEventListener('change', applyFilters);
     document.getElementById('tourFilter').addEventListener('change', applyFilters);
     document.getElementById('busFilter').addEventListener('change', applyFilters);
+    
+    if (clubVoteFilter) {
+        clubVoteFilter.addEventListener('change', applyFilters);
+    }
 
     // リセットボタンのイベントリスナー
     document.getElementById('resetFilters').addEventListener('click', resetAllFilters);
@@ -29,11 +45,13 @@ function initializeFilters() {
  * フィルターを適用
  */
 function applyFilters() {
+    const clubVoteFilter = document.getElementById('clubVoteFilter');
     const filters = {
         graduation: document.getElementById('graduationFilter').value,
         payment: document.getElementById('paymentFilter').value,
         tour: document.getElementById('tourFilter').value,
-        bus: document.getElementById('busFilter').value
+        bus: document.getElementById('busFilter').value,
+        clubVote: clubVoteFilter ? clubVoteFilter.value : 'all'
     };
 
     // データをフィルタリング
@@ -59,16 +77,22 @@ function resetAllFilters() {
     document.getElementById('paymentFilter').value = 'all';
     document.getElementById('tourFilter').value = 'all';
     document.getElementById('busFilter').value = 'all';
+    
+    const clubVoteFilter = document.getElementById('clubVoteFilter');
+    if (clubVoteFilter) {
+        clubVoteFilter.value = 'all';
+    }
 
     // データをリセット
     const data = resetFilters();
 
     // 統計を再計算
     const stats = calculateStatistics(data);
+    const dailyTrend = getDailyTrend(data);
 
     // UIを更新
     updateSummaryCards(stats);
-    updateAllCharts(stats);
+    updateAllCharts(stats, dailyTrend);
 
     console.log('フィルターをリセットしました');
 }
@@ -77,11 +101,13 @@ function resetAllFilters() {
  * 現在のフィルター状態を取得
  */
 function getCurrentFilters() {
+    const clubVoteFilter = document.getElementById('clubVoteFilter');
     return {
         graduation: document.getElementById('graduationFilter').value,
         payment: document.getElementById('paymentFilter').value,
         tour: document.getElementById('tourFilter').value,
-        bus: document.getElementById('busFilter').value
+        bus: document.getElementById('busFilter').value,
+        clubVote: clubVoteFilter ? clubVoteFilter.value : 'all'
     };
 }
 

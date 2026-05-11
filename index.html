@@ -49,6 +49,12 @@
                         <option value="利用しない">利用しない</option>
                     </select>
                 </div>
+                <div class="filter-group">
+                    <label for="clubVoteFilter">クラブ投票:</label>
+                    <select id="clubVoteFilter" class="filter-select">
+                        <option value="all">すべて</option>
+                    </select>
+                </div>
                 <button id="resetFilters" class="btn-reset">フィルターをリセット</button>
             </div>
         </section>
@@ -123,6 +129,10 @@
             <div class="chart-container full-width">
                 <h3>クラブ別参加 TOP 10</h3>
                 <canvas id="clubChart"></canvas>
+            </div>
+            <div class="chart-container full-width">
+                <h3>🗳️ クラブ投票ランキング TOP 10</h3>
+                <canvas id="clubVotesChart"></canvas>
             </div>
         </section>
 
